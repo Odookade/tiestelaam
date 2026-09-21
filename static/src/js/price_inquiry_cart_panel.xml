@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tiestelaam.PriceInquiryCartPanel">
+        <div class="o_tip_panel">
+
+            <!-- هدر -->
+            <div class="o_tip_header">
+                <div class="o_tip_header_title">
+                    <i class="fa fa-shopping-basket"/>
+                    <div>
+                        <h1>سبد خرید</h1>
+                        <span>مدیریت سبدهای خرید و صدور فاکتور</span>
+                    </div>
+                </div>
+                <div class="o_tip_header_actions">
+                    <button class="o_tip_btn o_tip_btn_primary" t-on-click="openCreate">
+                        <i class="fa fa-plus"/> سبد جدید
+                    </button>
+                </div>
+            </div>
+
+            <!-- نوار ابزار -->
+            <div class="o_tip_toolbar">
+                <div class="o_tip_search">
+                    <i class="fa fa-search"/>
+                    <input type="text"
+                           placeholder="جستجو در نام سبد..."
+                           t-model="state.query"/>
+                </div>
+            </div>
+
+            <!-- بدنه -->
+            <div t-if="state.loading" class="o_tip_state_msg">
+                <i class="fa fa-spinner fa-spin"/>
+                <span>در حال بارگذاری...</span>
+            </div>
+
+            <div t-elif="!filteredCarts.length" class="o_tip_state_msg">
+                <i class="fa fa-shopping-basket"/>
+                <span>هنوز سبد خریدی نساختی</span>
+            </div>
+
+            <div t-else="" class="o_tip_grid">
+                <t t-foreach="filteredCarts" t-as="cart" t-key="cart.id">
+                    <div class="o_tip_card" t-on-click="() => this.openDetail(cart)">
+
+                        <div class="o_tip_card_image">
+                            <img t-if="imageOk('cart_' + cart.id, cart.main_image_url)"
+                                 t-att-src="cart.main_image_url"
+                                 t-on-error="() => this.onImageError('cart_' + cart.id)"
+                                 alt=""/>
+                            <i t-else="" class="fa fa-shopping-basket o_tip_card_image_placeholder"/>
+                        </div>
+
+                        <div class="o_tip_card_body">
+                            <div class="o_tip_card_name" t-esc="cart.name"/>
+
+                            <div class="o_tip_card_status">
+                                <span class="o_tip_price">
+                                    <t t-esc="formatPrice(cart.total_price)"/>
+                                    <small>تومان</small>
+                                </span>
+                                <span t-if="cart.line_count" class="o_tip_count">
+                                    <i class="fa fa-list"/> <t t-esc="cart.line_count"/>
+                                </span>
+                            </div>
+
+                            <div class="o_tip_card_actions">
+                                <button class="o_tip_icon_btn"
+                                        t-att-disabled="state.printing"
+                                        t-on-click="(ev) => this.printInvoice(cart.id, ev)">
+                                    <i class="fa fa-print"/> چاپ فاکتور
+                                </button>
+
+                                <button class="o_tip_icon_btn o_tip_icon_btn_danger"
+                                        t-att-disabled="state.deletingIds.has(cart.id)"
+                                        t-on-click="(ev) => this.deleteCart(cart.id, ev)">
+                                    <i class="fa fa-trash"/>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </div>
+
+            <!-- مودال ساخت سبد جدید -->
+            <div t-if="state.showCreate" class="o_tip_overlay" t-on-click="closeCreate">
+                <div class="o_tip_modal" t-on-click="stopClick">
+
+                    <div class="o_tip_modal_header">
+                        <span>سبد خرید جدید</span>
+                        <i class="fa fa-times" t-on-click="closeCreate"/>
+                    </div>
+
+                    <div class="o_tip_modal_body">
+                        <label>نام سبد</label>
+                        <input type="text"
+                               class="o_tip_input"
+                               placeholder="مثلا: خرید لوازم دفتر"
+                               t-model="state.newName"/>
+                    </div>
+
+                    <div class="o_tip_modal_footer">
+                        <button class="o_tip_btn o_tip_btn_ghost" t-on-click="closeCreate">انصراف</button>
+                        <button class="o_tip_btn o_tip_btn_primary"
+                                t-att-disabled="!state.newName.trim() || state.creating"
+                                t-on-click="submitCreate">
+                            <i t-if="state.creating" class="fa fa-spinner fa-spin"/>
+                            <t t-else=""><i class="fa fa-plus"/> ساخت سبد</t>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- مودال جزئیات سبد -->
+            <div t-if="state.detail" class="o_tip_overlay" t-on-click="closeDetail">
+                <div class="o_tip_modal o_tip_detail_modal" t-on-click="stopClick">
+
+                    <div class="o_tip_modal_header">
+                        <span t-esc="state.detail.name"/>
+                        <i class="fa fa-times" t-on-click="closeDetail"/>
+                    </div>
+
+                    <div class="o_tip_detail_body">
+
+                        <div t-if="state.detailLoading" class="o_tip_state_msg">
+                            <i class="fa fa-spinner fa-spin"/>
+                            <span>در حال بارگذاری...</span>
+                        </div>
+
+                        <div t-elif="!state.detailLines.length" class="o_tip_state_msg">
+                            <i class="fa fa-shopping-basket"/>
+                            <span>این سبد هنوز خالیه</span>
+                        </div>
+
+                        <t t-else="">
+                            <div class="o_tip_cartline_list">
+                                <t t-foreach="state.detailLines" t-as="line" t-key="line.id">
+                                    <div class="o_tip_cartline_row">
+
+                                        <div class="o_tip_cartline_image" t-on-click="(ev) => this.openProductLink(line.url, ev)">
+                                            <img t-if="imageOk('cline_' + line.id, line.image_url)"
+                                                 t-att-src="line.image_url"
+                                                 t-on-error="() => this.onImageError('cline_' + line.id)"
+                                                 alt=""/>
+                                            <i t-else="" class="fa fa-image o_tip_card_image_placeholder"/>
+                                        </div>
+
+                                        <div class="o_tip_cartline_info">
+                                            <div class="o_tip_cartline_name"
+                                                 t-esc="line.name"
+                                                 t-on-click="(ev) => this.openProductLink(line.url, ev)"/>
+                                            <span t-attf-class="o_tip_source_chip_inline {{sourceMeta(line.source).cls}}">
+                                                <t t-esc="sourceMeta(line.source).label"/>
+                                            </span>
+                                        </div>
+
+                                        <div class="o_tip_cartline_qty">
+                                            <button t-on-click="(ev) => this.changeQuantity(line, -1, ev)">−</button>
+                                            <span t-esc="line.quantity"/>
+                                            <button t-on-click="(ev) => this.changeQuantity(line, 1, ev)">+</button>
+                                        </div>
+
+                                        <div class="o_tip_cartline_subtotal">
+                                            <t t-esc="formatPrice(line.subtotal)"/>
+                                            <small>تومان</small>
+                                        </div>
+
+                                        <button class="o_tip_cartline_remove" t-on-click="(ev) => this.removeLine(line.id, ev)">
+                                            <i class="fa fa-trash"/>
+                                        </button>
+
+                                    </div>
+                                </t>
+                            </div>
+
+                            <div class="o_tip_cart_total_bar">
+                                <span>جمع کل:</span>
+                                <strong>
+                                    <t t-esc="formatPrice(state.detail.total_price)"/>
+                                    تومان
+                                </strong>
+                                <button class="o_tip_btn o_tip_btn_primary"
+                                        t-att-disabled="state.printing"
+                                        t-on-click="(ev) => this.printInvoice(state.detail.id, ev)">
+                                    <i class="fa fa-print"/> چاپ فاکتور PDF
+                                </button>
+                            </div>
+                        </t>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </t>
+
+</templates>

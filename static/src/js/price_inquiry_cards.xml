@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tiestelaam.PriceInquiryCardsField">
+        <div class="o_pi_cards_wrapper">
+
+            <div class="o_pi_cards_grid" t-if="records.length">
+                <t t-foreach="records" t-as="rec" t-key="rec.id">
+                    <div class="o_pi_card" t-on-click="() => this.openLink(rec)">
+
+                        <div class="o_pi_card_image">
+                            <img t-if="rec.data.image_url" t-att-src="rec.data.image_url" alt="تصویر محصول"/>
+                            <i t-else="" class="fa fa-image o_pi_card_image_placeholder"/>
+
+                            <span t-if="rec.data.source"
+                                  t-attf-class="o_pi_source_badge o_pi_source_{{rec.data.source}}">
+                                <i t-attf-class="fa {{sourceIcon(rec.data.source)}}"/>
+                                <t t-esc="sourceLabel(rec.data.source)"/>
+                            </span>
+
+                            <span t-if="rec.data.badge_text" class="o_pi_condition_badge">
+                                <t t-esc="rec.data.badge_text"/>
+                            </span>
+                        </div>
+
+                        <div class="o_pi_card_body">
+                            <div class="o_pi_card_name" t-esc="rec.data.name"/>
+
+                            <div t-if="rec.data.meta_text" class="o_pi_card_meta">
+                                <i class="fa fa-map-marker"/>
+                                <t t-esc="rec.data.meta_text"/>
+                            </div>
+
+                            <div class="o_pi_card_footer">
+                                <span class="o_pi_card_price">
+                                    <t t-if="rec.data.price">
+                                        <t t-esc="formatPrice(rec.data.price)"/>
+                                        <span class="o_pi_currency">تومان</span>
+                                    </t>
+                                    <t t-else="">توافقی</t>
+                                </span>
+
+                                <a t-if="rec.data.url"
+                                   t-att-href="rec.data.url"
+                                   target="_blank"
+                                   class="o_pi_view_btn"
+                                   t-on-click="(ev) => this.stopClick(ev)">
+                                    <i class="fa fa-external-link"/>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </div>
+
+            <div t-else="" class="o_pi_cards_empty">
+                <i class="fa fa-search"/>
+                <span>نتیجه‌ای برای نمایش نیست</span>
+            </div>
+
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tiestelaam.PriceInquiryPanel">
+        <div class="o_tip_panel">
+
+            <!-- هدر -->
+            <div class="o_tip_header">
+                <div class="o_tip_header_title">
+                    <i class="fa fa-usd"/>
+                    <div>
+                        <h1>استعلام قیمت</h1>
+                        <span>مقایسه آنی قیمت از ترب، دیجی‌کالا و دیوار</span>
+                    </div>
+                </div>
+                <div class="o_tip_header_actions">
+                    <button t-attf-class="o_tip_btn {{state.selectMode ? 'o_tip_btn_ghost_active' : 'o_tip_btn_ghost'}}"
+                            t-on-click="toggleSelectMode">
+                        <i class="fa fa-check-square"/>
+                        <t t-if="state.selectMode">لغو انتخاب</t>
+                        <t t-else="">انتخاب چندتایی</t>
+                    </button>
+                    <button class="o_tip_btn o_tip_btn_primary" t-on-click="openCreate">
+                        <i class="fa fa-plus"/> استعلام جدید
+                    </button>
+                </div>
+            </div>
+
+            <!-- نوار انتخاب گروهی -->
+            <div t-if="state.selectMode" class="o_tip_bulkbar">
+                <span><t t-esc="state.selectedIds.size"/> مورد انتخاب شده</span>
+                <button class="o_tip_btn o_tip_btn_danger"
+                        t-att-disabled="!state.selectedIds.size"
+                        t-on-click="bulkDelete">
+                    <i class="fa fa-trash"/> حذف انتخاب‌شده‌ها
+                </button>
+            </div>
+
+            <!-- نوار ابزار -->
+            <div class="o_tip_toolbar">
+                <div class="o_tip_search">
+                    <i class="fa fa-search"/>
+                    <input type="text"
+                           placeholder="جستجو در نام کالا..."
+                           t-model="state.query"/>
+                </div>
+
+                <div class="o_tip_filters">
+                    <t t-foreach="filters" t-as="f" t-key="f.key">
+                        <button t-attf-class="o_tip_filter_chip {{state.filter === f.key ? 'active' : ''}}"
+                                t-on-click="() => this.setFilter(f.key)">
+                            <t t-esc="f.label"/>
+                        </button>
+                    </t>
+                </div>
+            </div>
+
+            <!-- بدنه -->
+            <div t-if="state.loading" class="o_tip_state_msg">
+                <i class="fa fa-spinner fa-spin"/>
+                <span>در حال بارگذاری...</span>
+            </div>
+
+            <div t-elif="!filteredInquiries.length" class="o_tip_state_msg">
+                <i class="fa fa-inbox"/>
+                <span>هیچ استعلامی یافت نشد</span>
+            </div>
+
+            <div t-else="" class="o_tip_grid">
+                <t t-foreach="filteredInquiries" t-as="inq" t-key="inq.id">
+                    <div t-attf-class="o_tip_card {{isSelected(inq.id) ? 'o_tip_card_selected' : ''}}"
+                         t-on-click="() => this.onCardClick(inq)">
+
+                        <div class="o_tip_card_image">
+                            <img t-if="imageOk('inq_' + inq.id, inq.main_image_url)"
+                                 t-att-src="inq.main_image_url"
+                                 t-on-error="() => this.onImageError('inq_' + inq.id)"
+                                 alt=""/>
+                            <i t-else="" class="fa fa-image o_tip_card_image_placeholder"/>
+
+                            <span t-attf-class="o_tip_source_chip {{sourceMeta(inq.source).cls}}">
+                                <i t-attf-class="fa {{sourceMeta(inq.source).icon}}"/>
+                                <t t-esc="sourceMeta(inq.source).label"/>
+                            </span>
+
+                            <span t-if="state.selectMode" class="o_tip_select_box">
+                                <i t-if="isSelected(inq.id)" class="fa fa-check-circle"/>
+                                <i t-else="" class="fa fa-circle-thin"/>
+                            </span>
+
+                            <span t-if="!state.selectMode and inq.auto_refresh" class="o_tip_auto_badge" title="استعلام روزانه خودکار فعال است">
+                                <i class="fa fa-repeat"/>
+                            </span>
+                        </div>
+
+                        <div class="o_tip_card_body">
+                            <div class="o_tip_card_name" t-esc="inq.name"/>
+
+                            <div t-if="inq.product_id" class="o_tip_linked_tag">
+                                <i class="fa fa-link"/> <t t-esc="inq.product_id[1]"/>
+                            </div>
+
+                            <div t-if="inq.state == 'failed'" class="o_tip_error_text" t-esc="inq.error_message"/>
+
+                            <div class="o_tip_card_status">
+                                <span t-if="inq.state == 'done'" class="o_tip_price">
+                                    <t t-esc="formatPrice(inq.price)"/>
+                                    <small>تومان</small>
+                                </span>
+                                <span t-elif="inq.state == 'failed'" class="o_tip_badge o_tip_badge_danger">
+                                    <i class="fa fa-exclamation-triangle"/> ناموفق
+                                </span>
+                                <span t-else="" class="o_tip_badge o_tip_badge_muted">
+                                    <i class="fa fa-hourglass-half"/> در انتظار
+                                </span>
+
+                                <span t-if="inq.line_count" class="o_tip_count">
+                                    <i class="fa fa-list"/> <t t-esc="inq.line_count"/>
+                                </span>
+                            </div>
+
+                            <div t-if="inq.inquiry_date" class="o_tip_card_date">
+                                <i class="fa fa-clock-o"/>
+                                <t t-esc="formatDateTime(inq.inquiry_date)"/>
+                            </div>
+
+                            <div t-if="!state.selectMode" class="o_tip_card_actions">
+                                <button t-if="inq.state != 'done'"
+                                        class="o_tip_icon_btn"
+                                        t-att-disabled="state.runningIds.has(inq.id)"
+                                        t-on-click="(ev) => this.runInquiry(inq.id, ev)">
+                                    <i t-if="state.runningIds.has(inq.id)" class="fa fa-spinner fa-spin"/>
+                                    <t t-else="">
+                                        <i class="fa fa-rocket"/>
+                                        <t t-if="inq.state == 'failed'"> تلاش مجدد</t>
+                                        <t t-else=""> شروع</t>
+                                    </t>
+                                </button>
+
+                                <button t-attf-class="o_tip_icon_btn o_tip_icon_btn_ghost {{inq.auto_refresh ? 'active' : ''}}"
+                                        title="استعلام روزانه خودکار"
+                                        t-on-click="(ev) => this.toggleAutoRefresh(inq, ev)">
+                                    <i class="fa fa-repeat"/>
+                                </button>
+
+                                <button class="o_tip_icon_btn o_tip_icon_btn_danger"
+                                        t-att-disabled="state.deletingIds.has(inq.id)"
+                                        t-on-click="(ev) => this.deleteInquiry(inq.id, ev)">
+                                    <i class="fa fa-trash"/>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </div>
+
+            <!-- مودال ساخت استعلام جدید -->
+            <div t-if="state.showCreate" class="o_tip_overlay" t-on-click="closeCreate">
+                <div class="o_tip_modal" t-on-click="stopClick">
+
+                    <div class="o_tip_modal_header">
+                        <span>استعلام جدید</span>
+                        <i class="fa fa-times" t-on-click="closeCreate"/>
+                    </div>
+
+                    <div class="o_tip_modal_body">
+                        <label>نام کالا</label>
+                        <input type="text"
+                               class="o_tip_input"
+                               placeholder="مثلا: آیفون 13"
+                               t-model="state.newName"/>
+
+                        <label>منبع</label>
+                        <div class="o_tip_source_picker">
+                            <t t-foreach="sources" t-as="s" t-key="s.key">
+                                <button t-attf-class="o_tip_source_option {{s.cls}} {{state.newSource === s.key ? 'active' : ''}}"
+                                        t-on-click="() => this.selectSource(s.key)">
+                                    <i t-attf-class="fa {{s.icon}}"/>
+                                    <t t-esc="s.label"/>
+                                </button>
+                            </t>
+                        </div>
+
+                        <div class="o_tip_checkbox_row" t-on-click="toggleNewAutoRefresh">
+                            <i t-if="state.newAutoRefresh" class="fa fa-check-square"/>
+                            <i t-else="" class="fa fa-square-o"/>
+                            <span>هر روز به‌صورت خودکار دوباره استعلام گرفته بشه</span>
+                        </div>
+                    </div>
+
+                    <div class="o_tip_modal_footer">
+                        <button class="o_tip_btn o_tip_btn_ghost" t-on-click="closeCreate">انصراف</button>
+                        <button class="o_tip_btn o_tip_btn_primary"
+                                t-att-disabled="!state.newName.trim() || state.creating"
+                                t-on-click="submitCreate">
+                            <i t-if="state.creating" class="fa fa-spinner fa-spin"/>
+                            <t t-else="">
+                                <i class="fa fa-rocket"/> شروع استعلام
+                            </t>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- مودال جزئیات نتایج -->
+            <div t-if="state.detail" class="o_tip_overlay" t-on-click="closeDetail">
+                <div t-attf-class="o_tip_modal o_tip_detail_modal {{isCompareMode ? 'o_tip_compare_modal' : ''}}" t-on-click="stopClick">
+
+                    <div class="o_tip_modal_header">
+                        <span t-esc="state.detail.name"/>
+                        <i class="fa fa-times" t-on-click="closeDetail"/>
+                    </div>
+
+                    <div class="o_tip_detail_body">
+
+                        <!-- اتصال به محصول انبار + اعمال قیمت -->
+                        <div class="o_tip_link_box">
+                            <t t-if="state.detail.product_id">
+                                <div class="o_tip_linked_product">
+                                    <i class="fa fa-link"/>
+                                    <span t-esc="state.detail.product_id[1]"/>
+                                    <button class="o_tip_unlink_btn" t-on-click="unlinkProduct" t-att-disabled="state.linkingProduct">
+                                        <i class="fa fa-times"/>
+                                    </button>
+                                </div>
+
+                                <div t-if="state.detail.state == 'done'" class="o_tip_apply_row">
+                                    <span class="o_tip_apply_label">اعمال قیمت روی:</span>
+                                    <button class="o_tip_btn o_tip_btn_ghost"
+                                            t-att-disabled="state.applyingPrice"
+                                            t-on-click="(ev) => this.applyPrice('sale', ev)">
+                                        <i class="fa fa-tag"/> قیمت فروش
+                                    </button>
+                                    <button class="o_tip_btn o_tip_btn_ghost"
+                                            t-att-disabled="state.applyingPrice"
+                                            t-on-click="(ev) => this.applyPrice('cost', ev)">
+                                        <i class="fa fa-truck"/> قیمت خرید
+                                    </button>
+                                </div>
+                            </t>
+
+                            <t t-else="">
+                                <div class="o_tip_product_search">
+                                    <i class="fa fa-cube"/>
+                                    <input type="text"
+                                           placeholder="اتصال به محصول انبار (جستجو کن)..."
+                                           t-att-value="state.productQuery"
+                                           t-on-input="(ev) => this.onProductQueryInput(ev)"/>
+                                </div>
+
+                                <div t-if="state.productResults.length" class="o_tip_product_results">
+                                    <t t-foreach="state.productResults" t-as="p" t-key="p.id">
+                                        <button class="o_tip_product_result"
+                                                t-att-disabled="state.linkingProduct"
+                                                t-on-click="() => this.selectProduct(p)">
+                                            <span t-esc="p.name"/>
+                                            <small t-if="p.default_code" t-esc="'[' + p.default_code + ']'"/>
+                                        </button>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+
+                        <div t-if="state.detailLoading" class="o_tip_state_msg">
+                            <i class="fa fa-spinner fa-spin"/>
+                            <span>در حال بارگذاری نتایج...</span>
+                        </div>
+
+                        <div t-elif="!state.detailLines.length" class="o_tip_state_msg">
+                            <i class="fa fa-search"/>
+                            <span>هنوز نتیجه‌ای ثبت نشده</span>
+                        </div>
+
+                        <!-- جدول مقایسه سه‌ستونه -->
+                        <div t-elif="isCompareMode" class="o_tip_compare_table">
+                            <t t-foreach="compareColumns" t-as="col" t-key="col.key">
+                                <div class="o_tip_compare_col">
+                                    <div t-attf-class="o_tip_compare_col_head {{col.meta.cls}}">
+                                        <i t-attf-class="fa {{col.meta.icon}}"/>
+                                        <t t-esc="col.meta.label"/>
+                                    </div>
+
+                                    <t t-foreach="col.items" t-as="item" t-key="item_index">
+                                        <div t-if="item" class="o_tip_compare_row"
+                                             t-on-click="(ev) => this.openProductLink(item.url, ev)">
+                                            <div class="o_tip_compare_thumb">
+                                                <img t-if="imageOk('cmp_' + item.id, item.image_url)"
+                                                     t-att-src="item.image_url"
+                                                     t-on-error="() => this.onImageError('cmp_' + item.id)"
+                                                     alt=""/>
+                                                <i t-else="" class="fa fa-image o_tip_card_image_placeholder"/>
+                                            </div>
+                                            <div class="o_tip_compare_info">
+                                                <div class="o_tip_compare_name" t-esc="item.name"/>
+                                                <div class="o_tip_compare_price">
+                                                    <t t-if="item.price">
+                                                        <t t-esc="formatPrice(item.price)"/> تومان
+                                                    </t>
+                                                    <t t-else="">توافقی</t>
+                                                </div>
+                                            </div>
+                                            <button class="o_tip_cart_btn o_tip_compare_cart_btn" title="افزودن به سبد خرید"
+                                                    t-on-click="(ev) => this.openCartPicker(item, ev)">
+                                                <i class="fa fa-cart-plus"/>
+                                            </button>
+                                        </div>
+                                        <div t-else="" class="o_tip_compare_row o_tip_compare_row_empty">—</div>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+
+                        <div t-else="" class="o_tip_product_grid">
+                            <t t-foreach="state.detailLines" t-as="line" t-key="line.id">
+                                <div class="o_tip_product_card">
+
+                                    <div class="o_tip_product_image" t-on-click="(ev) => this.openProductLink(line.url, ev)">
+                                        <img t-if="imageOk('line_' + line.id, line.image_url)"
+                                             t-att-src="line.image_url"
+                                             t-on-error="() => this.onImageError('line_' + line.id)"
+                                             alt=""/>
+                                        <i t-else="" class="fa fa-image o_tip_card_image_placeholder"/>
+
+                                        <span t-if="line.badge_text" class="o_tip_condition_badge">
+                                            <t t-esc="line.badge_text"/>
+                                        </span>
+                                    </div>
+
+                                    <div class="o_tip_product_body">
+                                        <div class="o_tip_product_name"
+                                             t-esc="line.name"
+                                             t-on-click="(ev) => this.openProductLink(line.url, ev)"/>
+
+                                        <div t-if="line.meta_text" class="o_tip_product_meta">
+                                            <i class="fa fa-map-marker"/>
+                                            <span t-esc="line.meta_text"/>
+                                        </div>
+
+                                        <div class="o_tip_product_footer">
+                                            <span class="o_tip_price">
+                                                <t t-if="line.price">
+                                                    <t t-esc="formatPrice(line.price)"/>
+                                                    <small>تومان</small>
+                                                </t>
+                                                <t t-else="">توافقی</t>
+                                            </span>
+                                            <button class="o_tip_cart_btn" title="افزودن به سبد خرید"
+                                                    t-on-click="(ev) => this.openCartPicker(line, ev)">
+                                                <i class="fa fa-cart-plus"/>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </t>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- مودال انتخاب/ساخت سبد خرید -->
+            <div t-if="state.showCartPicker" class="o_tip_overlay" t-on-click="closeCartPicker">
+                <div class="o_tip_modal" t-on-click="stopClick">
+
+                    <div class="o_tip_modal_header">
+                        <span>افزودن به سبد خرید</span>
+                        <i class="fa fa-times" t-on-click="closeCartPicker"/>
+                    </div>
+
+                    <div class="o_tip_modal_body">
+
+                        <div t-if="state.cartsLoading" class="o_tip_state_msg o_tip_state_msg_sm">
+                            <i class="fa fa-spinner fa-spin"/>
+                        </div>
+
+                        <t t-else="">
+                            <div t-if="state.carts.length" class="o_tip_cart_list">
+                                <t t-foreach="state.carts" t-as="cart" t-key="cart.id">
+                                    <button class="o_tip_cart_option"
+                                            t-att-disabled="state.addingToCart"
+                                            t-on-click="() => this.addLineToCart(cart.id)">
+                                        <i class="fa fa-shopping-basket"/>
+                                        <span class="o_tip_cart_option_name" t-esc="cart.name"/>
+                                        <span class="o_tip_cart_option_count"><t t-esc="cart.line_count"/> قلم</span>
+                                    </button>
+                                </t>
+                            </div>
+
+                            <label class="o_tip_cart_new_label">یا یک سبد جدید بساز</label>
+                            <div class="o_tip_cart_new_row">
+                                <input type="text"
+                                       class="o_tip_input"
+                                       placeholder="نام سبد جدید"
+                                       t-model="state.cartPickerNewName"/>
+                                <button class="o_tip_btn o_tip_btn_primary"
+                                        t-att-disabled="!state.cartPickerNewName.trim() || state.addingToCart"
+                                        t-on-click="createCartAndAdd">
+                                    <i t-if="state.addingToCart" class="fa fa-spinner fa-spin"/>
+                                    <i t-else="" class="fa fa-plus"/>
+                                </button>
+                            </div>
+                        </t>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </t>
+
+</templates>
