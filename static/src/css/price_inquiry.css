@@ -1,0 +1,208 @@
+/* ===== هدر فرم استعلام ===== */
+.o_ti_form_header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:18px 20px;
+    margin-bottom:18px;
+    background:linear-gradient(135deg,#6366f1,#4f46e5);
+    color:#fff;
+    border-radius:14px;
+}
+
+.o_ti_form_header > .fa{
+    font-size:30px;
+    opacity:0.9;
+    flex-shrink:0;
+}
+
+.o_ti_form_header h1{
+    margin:0;
+    font-size:22px;
+}
+
+.o_ti_form_header h1 .o_field_widget input{
+    color:#fff;
+    font-size:22px;
+    font-weight:700;
+}
+
+.o_ti_form_header h1 .o_field_widget input::placeholder{
+    color:rgba(255,255,255,0.7);
+}
+
+.o_ti_form_subtitle{
+    font-size:12.5px;
+    opacity:0.85;
+}
+
+/* ===== باکس قیمت ===== */
+.price_box{
+    background:#f8fafc;
+    padding:15px 18px;
+    border-radius:12px;
+    border:1px solid #e2e8f0;
+    font-size:22px;
+    font-weight:bold;
+    color:#16a34a;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.price_box_icon{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    color:#fff;
+    font-size:15px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+}
+
+.o_field_widget.o_field_url a{
+    background:#3b82f6;
+    color:white !important;
+    padding:5px 10px;
+    border-radius:6px;
+    text-decoration:none;
+}
+
+.o_field_widget.o_field_url a:hover{
+    background:#2563eb;
+}
+
+/* ===== کانبان اصلی لیست استعلام‌ها ===== */
+.o_ti_kanban_card{
+    background:#fff;
+    border:1px solid #eef0f2;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    transition:transform .14s ease, box-shadow .14s ease;
+}
+
+.o_ti_kanban_card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 22px rgba(0,0,0,0.09);
+    cursor:pointer;
+}
+
+.o_ti_kanban_image{
+    position:relative;
+    width:100%;
+    aspect-ratio:2.4 / 1;
+    background:#f9fafb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+
+.o_ti_kanban_image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.o_ti_kanban_image_placeholder{
+    font-size:28px;
+    color:#d1d5db;
+}
+
+.o_ti_source_chip{
+    position:absolute;
+    top:8px;
+    right:8px;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:10.5px;
+    font-weight:700;
+    color:#fff;
+    padding:3px 9px;
+    border-radius:999px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
+
+.o_ti_source_chip .fa{ font-size:9px; }
+
+.o_ti_source_torob{ background:rgba(37,99,235,.92); }
+.o_ti_source_digikala{ background:rgba(219,39,119,.92); }
+.o_ti_source_divar{ background:rgba(5,150,105,.92); }
+
+.o_ti_kanban_body{
+    padding:12px 14px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.o_ti_kanban_title{
+    font-size:14px;
+    font-weight:700;
+    color:#111827;
+    line-height:1.4;
+    display:-webkit-box;
+    -webkit-line-clamp:1;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+}
+
+.o_ti_kanban_footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+}
+
+.o_ti_kanban_price{
+    font-size:15px;
+    font-weight:800;
+    color:#16a34a;
+}
+
+.o_ti_kanban_error{
+    font-size:12px;
+    font-weight:600;
+    color:#dc2626;
+}
+
+.o_ti_kanban_pending{
+    font-size:12px;
+    font-weight:600;
+    color:#6b7280;
+}
+
+.o_ti_kanban_count{
+    font-size:11.5px;
+    font-weight:600;
+    color:#6b7280;
+    background:#f3f4f6;
+    padding:2px 8px;
+    border-radius:999px;
+}
+
+.o_ti_kanban_date{
+    font-size:11px;
+    color:#9ca3af;
+}
+
+.o_ti_kanban_btn{
+    margin-top:4px;
+    width:100%;
+    background:#111827;
+    color:#fff;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 10px;
+}
+
+.o_ti_kanban_btn:hover{
+    background:#2563eb;
+    color:#fff;
+}
