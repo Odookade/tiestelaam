@@ -1,0 +1,33 @@
+{
+    'name': 'استعلام قیمت آنلاین',
+    'version': '1.0',
+    'category': 'فروش/محصولات',
+    'summary': 'استعلام قیمت کالاها از سایت‌های مختلف',
+    'author': 'Erfan Meraati',
+    'depends': ['web', 'sale', 'product'],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'views/price_inquiry_panel_action.xml',
+        'views/price_inquiry_cart_action.xml',
+        'views/price_inquiry_views.xml',
+        'report/price_inquiry_cart_report.xml',
+        'data/price_inquiry_cron.xml',
+    ],
+    'assets': {
+        'web.assets_backend': [
+            'tiestelaam/static/src/css/price_inquiry.css',
+            'tiestelaam/static/src/scss/price_inquiry_cards.scss',
+            'tiestelaam/static/src/scss/price_inquiry_panel.scss',
+            'tiestelaam/static/src/scss/price_inquiry_cart_panel.scss',
+            'tiestelaam/static/src/js/price_inquiry_cards.js',
+            'tiestelaam/static/src/js/price_inquiry_cards.xml',
+            'tiestelaam/static/src/js/price_inquiry_panel.js',
+            'tiestelaam/static/src/js/price_inquiry_panel.xml',
+            'tiestelaam/static/src/js/price_inquiry_cart_panel.js',
+            'tiestelaam/static/src/js/price_inquiry_cart_panel.xml',
+        ],
+    },
+    'installable': True,
+    'application': True,
+}
