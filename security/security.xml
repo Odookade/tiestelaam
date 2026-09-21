@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- تعریف گروه دسترسی -->
+    <record id="group_price_inquiry_user" model="res.groups">
+        <field name="name">کاربر استعلام قیمت</field>
+        <field name="category_id" ref="base.module_category_sales"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_price_inquiry_manager" model="res.groups">
+        <field name="name">مدیر استعلام قیمت</field>
+        <field name="category_id" ref="base.module_category_sales"/>
+        <field name="implied_ids" eval="[(4, ref('group_price_inquiry_user'))]"/>
+    </record>
+
+    <!-- قوانین دسترسی - استعلام قیمت -->
+    <record id="price_inquiry_rule_user" model="ir.rule">
+        <field name="name">استعلام قیمت - دسترسی کاربر</field>
+        <field name="model_id" ref="model_price_inquiry"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_price_inquiry_user'))]"/>
+    </record>
+
+    <record id="price_inquiry_rule_manager" model="ir.rule">
+        <field name="name">استعلام قیمت - دسترسی مدیر</field>
+        <field name="model_id" ref="model_price_inquiry"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_price_inquiry_manager'))]"/>
+    </record>
+
+    <!-- قوانین دسترسی - خطوط استعلام -->
+    <record id="price_inquiry_line_rule_user" model="ir.rule">
+        <field name="name">خطوط استعلام - دسترسی کاربر</field>
+        <field name="model_id" ref="model_price_inquiry_line"/>
+        <field name="domain_force">[('inquiry_id.create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_price_inquiry_user'))]"/>
+    </record>
+
+    <record id="price_inquiry_line_rule_manager" model="ir.rule">
+        <field name="name">خطوط استعلام - دسترسی مدیر</field>
+        <field name="model_id" ref="model_price_inquiry_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_price_inquiry_manager'))]"/>
+    </record>
+
+    <record id="price_inquiry_user_rule" model="ir.rule">
+        <field name="name">Price Inquiry: User Own Records</field>
+        <field name="model_id" ref="model_price_inquiry"/>
+        <field name="domain_force">[('user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+</odoo>
