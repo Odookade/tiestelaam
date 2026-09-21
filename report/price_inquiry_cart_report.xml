@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_cart_invoice" model="ir.actions.report">
+        <field name="name">فاکتور سبد خرید</field>
+        <field name="model">price.inquiry.cart</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">tiestelaam.report_cart_invoice_document</field>
+        <field name="report_file">tiestelaam.report_cart_invoice_document</field>
+        <field name="print_report_name">'فاکتور سبد خرید - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_price_inquiry_cart"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+    <template id="report_cart_invoice_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="page tip_invoice">
+
+                    <style>
+                        .tip_invoice{
+                            font-family: Tahoma, Arial, sans-serif;
+                            direction: rtl;
+                            text-align: right;
+                            color: #1f2937;
+                        }
+                        .tip_invoice .tip_inv_header{
+                            background: #4338ca;
+                            color: #fff;
+                            border-radius: 14px;
+                            padding: 22px 26px;
+                            margin-bottom: 22px;
+                            overflow: hidden;
+                        }
+                        .tip_invoice .tip_inv_header .tip_inv_title{
+                            font-size: 22px;
+                            font-weight: bold;
+                            float: right;
+                        }
+                        .tip_invoice .tip_inv_header .tip_inv_sub{
+                            font-size: 11px;
+                            opacity: 0.85;
+                            float: right;
+                            clear: right;
+                            margin-top: 4px;
+                        }
+                        .tip_invoice .tip_inv_header .tip_inv_badge{
+                            float: left;
+                            background: rgba(255,255,255,0.15);
+                            border-radius: 10px;
+                            padding: 8px 14px;
+                            font-size: 11px;
+                            text-align: left;
+                        }
+                        .tip_invoice .tip_inv_meta{
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 18px;
+                        }
+                        .tip_invoice .tip_inv_meta td{
+                            padding: 6px 0;
+                            font-size: 11.5px;
+                            color: #4b5563;
+                        }
+                        .tip_invoice .tip_inv_meta td b{
+                            color: #111827;
+                        }
+                        .tip_invoice table.tip_inv_table{
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 8px;
+                        }
+                        .tip_invoice table.tip_inv_table thead th{
+                            background: #eef2ff;
+                            color: #3730a3;
+                            font-size: 11px;
+                            font-weight: bold;
+                            padding: 9px 8px;
+                            border-bottom: 2px solid #c7d2fe;
+                            text-align: right;
+                        }
+                        .tip_invoice table.tip_inv_table tbody td{
+                            font-size: 11px;
+                            padding: 8px;
+                            border-bottom: 1px solid #f0f0f3;
+                            vertical-align: middle;
+                        }
+                        .tip_invoice table.tip_inv_table tbody tr:nth-child(even){
+                            background: #fafafa;
+                        }
+                        .tip_invoice .tip_src_badge{
+                            display: inline-block;
+                            font-size: 9.5px;
+                            font-weight: bold;
+                            color: #fff;
+                            padding: 2px 8px;
+                            border-radius: 999px;
+                        }
+                        .tip_invoice .tip_src_torob{ background:#2563eb; }
+                        .tip_invoice .tip_src_digikala{ background:#db2777; }
+                        .tip_invoice .tip_src_divar{ background:#059669; }
+                        .tip_invoice .tip_inv_total_wrap{
+                            width: 100%;
+                            margin-top: 14px;
+                            overflow: hidden;
+                        }
+                        .tip_invoice .tip_inv_total{
+                            float: left;
+                            width: 260px;
+                            background: #111827;
+                            color: #fff;
+                            border-radius: 12px;
+                            padding: 14px 18px;
+                            text-align: center;
+                        }
+                        .tip_invoice .tip_inv_total .tip_inv_total_label{
+                            font-size: 11px;
+                            opacity: 0.8;
+                        }
+                        .tip_invoice .tip_inv_total .tip_inv_total_amount{
+                            font-size: 20px;
+                            font-weight: bold;
+                            margin-top: 4px;
+                        }
+                        .tip_invoice .tip_inv_footer{
+                            margin-top: 40px;
+                            font-size: 9.5px;
+                            color: #9ca3af;
+                            text-align: center;
+                            border-top: 1px dashed #e5e7eb;
+                            padding-top: 10px;
+                        }
+                    </style>
+
+                    <div class="tip_inv_header">
+                        <div class="tip_inv_title">فاکتور سبد خرید</div>
+                        <div class="tip_inv_sub" t-esc="o.name"/>
+                        <div class="tip_inv_badge">
+                            <div>تعداد اقلام: <t t-esc="o.line_count"/></div>
+                        </div>
+                    </div>
+
+                    <table class="tip_inv_meta">
+                        <tr>
+                            <td>تهیه‌کننده: <b t-esc="o.user_id.name"/></td>
+                            <td>تاریخ چاپ: <b t-esc="datetime.datetime.now().strftime('%Y-%m-%d %H:%M')"/></td>
+                        </tr>
+                    </table>
+
+                    <table class="tip_inv_table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>نام کالا</th>
+                                <th>منبع</th>
+                                <th>قیمت واحد (تومان)</th>
+                                <th>تعداد</th>
+                                <th>جمع (تومان)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.line_ids" t-as="line">
+                                <tr>
+                                    <td t-esc="line_index + 1"/>
+                                    <td t-esc="line.name"/>
+                                    <td>
+                                        <span t-attf-class="tip_src_badge tip_src_{{line.source}}"
+                                              t-esc="dict([('torob','ترب'),('digikala','دیجی‌کالا'),('divar','دیوار')]).get(line.source, line.source or '-')"/>
+                                    </td>
+                                    <td t-esc="'{:,.0f}'.format(line.price or 0)"/>
+                                    <td t-esc="line.quantity"/>
+                                    <td t-esc="'{:,.0f}'.format(line.subtotal or 0)"/>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <div class="tip_inv_total_wrap">
+                        <div class="tip_inv_total">
+                            <div class="tip_inv_total_label">جمع کل سبد خرید</div>
+                            <div class="tip_inv_total_amount" t-esc="'{:,.0f}'.format(o.total_price or 0) + ' تومان'"/>
+                        </div>
+                    </div>
+
+                    <div class="tip_inv_footer">
+                        این فاکتور صرفاً جهت مقایسه‌ی قیمت‌های استعلام‌شده تهیه شده و سند رسمی خرید محسوب نمی‌شود.
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>
