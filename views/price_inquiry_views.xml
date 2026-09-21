@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- اکشن -->
+    <record id="action_price_inquiry" model="ir.actions.act_window">
+        <field name="name">استعلام قیمت</field>
+        <field name="res_model">price.inquiry</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_group_state': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                هنوز هیچ استعلام قیمتی ثبت نشده
+            </p>
+            <p>
+                یک استعلام جدید بساز و قیمت کالا رو از ترب، دیجی‌کالا یا دیوار بگیر.
+            </p>
+        </field>
+    </record>
+
+
+    <!-- منوی اصلی -->
+    <menuitem id="menu_price_inquiry_root"
+              name="تی‌استعلام"
+              sequence="10"
+              web_icon="tiestelaam,static/description/icon.png"/>
+
+
+    <!-- منوی لیست -->
+    <menuitem id="menu_price_inquiry_list"
+              name="استعلام‌ها"
+              parent="menu_price_inquiry_root"
+              action="action_tiestelaam_panel"
+              sequence="1"/>
+
+
+    <!-- کانبان (ویو پیش‌فرض) -->
+    <record id="view_price_inquiry_kanban" model="ir.ui.view">
+        <field name="name">price.inquiry.kanban</field>
+        <field name="model">price.inquiry</field>
+        <field name="arch" type="xml">
+
+            <kanban class="o_ti_kanban" default_group_by="state" quick_create="false">
+
+                <field name="name"/>
+                <field name="source"/>
+                <field name="price"/>
+                <field name="state"/>
+                <field name="inquiry_date"/>
+                <field name="line_count"/>
+                <field name="main_image_url"/>
+                <field name="error_message"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="o_ti_kanban_card oe_kanban_global_click">
+
+                            <div class="o_ti_kanban_image">
+                                <img t-if="record.main_image_url.raw_value"
+                                     t-att-src="record.main_image_url.raw_value"
+                                     alt="تصویر"/>
+                                <i t-else="" class="fa fa-image o_ti_kanban_image_placeholder"/>
+
+                                <span t-attf-class="o_ti_source_chip o_ti_source_{{record.source.raw_value}}">
+                                    <i t-if="record.source.raw_value == 'torob'" class="fa fa-bolt"/>
+                                    <i t-elif="record.source.raw_value == 'digikala'" class="fa fa-shopping-bag"/>
+                                    <i t-elif="record.source.raw_value == 'divar'" class="fa fa-map-marker"/>
+                                    <i t-else="" class="fa fa-tag"/>
+                                    <t t-esc="record.source.value"/>
+                                </span>
+                            </div>
+
+                            <div class="o_ti_kanban_body">
+                                <div class="o_ti_kanban_title" t-esc="record.name.value"/>
+
+                                <div class="o_ti_kanban_footer">
+                                    <span t-if="record.state.raw_value == 'done'" class="o_ti_kanban_price">
+                                        <t t-esc="record.price.value"/>
+                                    </span>
+                                    <span t-elif="record.state.raw_value == 'failed'" class="o_ti_kanban_error" t-att-title="record.error_message.value">
+                                        <i class="fa fa-exclamation-triangle"/> ناموفق
+                                    </span>
+                                    <span t-else="" class="o_ti_kanban_pending">
+                                        <i class="fa fa-hourglass-half"/> در انتظار
+                                    </span>
+
+                                    <span t-if="record.line_count.raw_value" class="o_ti_kanban_count">
+                                        <i class="fa fa-list"/> <t t-esc="record.line_count.value"/>
+                                    </span>
+                                </div>
+
+                                <div class="o_ti_kanban_date" t-if="record.inquiry_date.value">
+                                    <i class="fa fa-clock-o"/> <t t-esc="record.inquiry_date.value"/>
+                                </div>
+
+                                <button t-if="record.state.raw_value != 'done'"
+                                        name="action_inquiry_price"
+                                        type="object"
+                                        class="btn btn-sm o_ti_kanban_btn">
+                                    <i class="fa fa-rocket"/>
+                                    <t t-if="record.state.raw_value == 'failed'"> تلاش مجدد</t>
+                                    <t t-else=""> شروع استعلام</t>
+                                </button>
+                            </div>
+
+                        </div>
+                    </t>
+                </templates>
+
+            </kanban>
+
+        </field>
+    </record>
+
+
+    <!-- فرم -->
+    <record id="view_price_inquiry_form" model="ir.ui.view">
+        <field name="name">price.inquiry.form</field>
+        <field name="model">price.inquiry</field>
+        <field name="arch" type="xml">
+
+            <form string="استعلام قیمت">
+
+                <header>
+
+                    <button name="action_inquiry_price"
+                            type="object"
+                            class="btn btn-primary"
+                            invisible="state != 'draft'">
+                        <i class="fa fa-rocket me-1"/> شروع استعلام
+                    </button>
+
+                    <button name="action_inquiry_price"
+                            type="object"
+                            class="btn btn-warning"
+                            invisible="state != 'failed'">
+                        <i class="fa fa-refresh me-1"/> تلاش مجدد
+                    </button>
+
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,done"/>
+
+                </header>
+
+
+                <sheet>
+
+                    <div class="o_ti_form_header">
+                        <i class="fa fa-usd"/>
+                        <div>
+                            <h1><field name="name" placeholder="مثلا: آیفون 13"/></h1>
+                            <span class="o_ti_form_subtitle">استعلام قیمت آنلاین از فروشگاه‌های اینترنتی</span>
+                        </div>
+                    </div>
+
+                    <group>
+
+                        <group string="اطلاعات محصول">
+
+                            <field name="product_id"/>
+
+                            <field name="source" widget="radio"/>
+
+                        </group>
+
+
+                        <group string="نتیجه استعلام">
+
+                            <div class="price_box">
+                                <i class="fa fa-tags price_box_icon"/>
+                                <field name="price"
+                                       widget="monetary"
+                                       readonly="1"/>
+                            </div>
+
+                            <field name="inquiry_date"
+                                   readonly="1"/>
+
+                            <field name="url"
+                                widget="url"
+                                string="لینک"
+                                readonly="1"
+                                options="{'text': 'باز کردن محصول'}"/>
+
+                        </group>
+
+                    </group>
+
+
+                    <!-- stat button -->
+                    <div class="oe_button_box" name="button_box">
+
+                        <button name="action_view_lines"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-shopping-cart">
+
+                            <field name="line_count"
+                                widget="statinfo"
+                                string="تعداد نتایج"/>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- محصولات مشابه -->
+                    <group string="محصولات مشابه"
+                           colspan="2"
+                           invisible="line_count == 0">
+
+                        <field name="line_ids"
+                               colspan="2"
+                               nolabel="1"
+                               widget="price_inquiry_cards"
+                               readonly="1">
+                            <list>
+                                <field name="sequence"/>
+                                <field name="name"/>
+                                <field name="price"/>
+                                <field name="url"/>
+                                <field name="source"/>
+                                <field name="image_url"/>
+                                <field name="badge_text"/>
+                                <field name="meta_text"/>
+                            </list>
+                        </field>
+
+                    </group>
+
+
+                    <!-- خطا -->
+                    <group string="خطا"
+                           colspan="2"
+                           invisible="state != 'failed'">
+
+                        <div class="alert alert-danger">
+                            <i class="fa fa-exclamation-triangle me-1"/>
+                            <field name="error_message"
+                                   readonly="1"
+                                   nolabel="1"/>
+                        </div>
+
+                    </group>
+
+
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
+
+
+    <!-- لیست -->
+    <record id="view_price_inquiry_list" model="ir.ui.view">
+        <field name="name">price.inquiry.list</field>
+        <field name="model">price.inquiry</field>
+        <field name="arch" type="xml">
+
+            <list string="لیست استعلام قیمت"
+                  default_order="create_date desc"
+                  decoration-success="state == 'done'"
+                  decoration-danger="state == 'failed'"
+                  decoration-muted="state == 'draft'">
+
+                <field name="name" string="کالا"/>
+
+                <field name="source"
+                       string="منبع"
+                       widget="badge"
+                       decoration-info="source == 'torob'"
+                       decoration-danger="source == 'digikala'"
+                       decoration-success="source == 'divar'"/>
+
+                <field name="price"
+                       widget="monetary"
+                       string="قیمت"/>
+
+                <field name="line_count"
+                       string="نتایج"/>
+
+                <field name="inquiry_date"
+                       string="تاریخ"/>
+
+                <field name="state"
+                       widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'failed'"
+                       decoration-info="state == 'draft'"
+                       string="وضعیت"/>
+
+            </list>
+
+        </field>
+    </record>
+
+
+
+    <!-- جستجو -->
+    <record id="view_price_inquiry_search" model="ir.ui.view">
+        <field name="name">price.inquiry.search</field>
+        <field name="model">price.inquiry</field>
+        <field name="arch" type="xml">
+
+            <search string="جستجوی استعلام">
+
+                <field name="name"/>
+
+                <field name="product_id"/>
+
+                <filter string="در انتظار" name="draft" domain="[('state', '=', 'draft')]"/>
+
+                <filter string="موفق" name="done" domain="[('state', '=', 'done')]"/>
+
+                <filter string="ناموفق" name="failed" domain="[('state', '=', 'failed')]"/>
+
+                <separator/>
+
+                <filter string="ترب" name="src_torob" domain="[('source', '=', 'torob')]"/>
+
+                <filter string="دیجی‌کالا" name="src_digikala" domain="[('source', '=', 'digikala')]"/>
+
+                <filter string="دیوار" name="src_divar" domain="[('source', '=', 'divar')]"/>
+
+                <group expand="0" string="گروه‌بندی">
+
+                    <filter string="وضعیت"
+                            name="group_state"
+                            context="{'group_by': 'state'}"/>
+
+                    <filter string="منبع"
+                            name="group_source"
+                            context="{'group_by': 'source'}"/>
+
+                </group>
+
+            </search>
+
+        </field>
+    </record>
+
+</odoo>
