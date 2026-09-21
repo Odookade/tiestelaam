@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_tiestelaam_cart_panel" model="ir.actions.client">
+        <field name="name">سبد خرید</field>
+        <field name="tag">tiestelaam.cart_panel</field>
+    </record>
+
+    <menuitem id="menu_price_inquiry_cart"
+              name="سبد خریدها"
+              parent="menu_price_inquiry_root"
+              action="action_tiestelaam_cart_panel"
+              sequence="2"/>
+
+</odoo>
