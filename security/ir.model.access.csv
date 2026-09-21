@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_price_inquiry_user,استعلام قیمت - کاربر,model_price_inquiry,base.group_user,1,1,1,1
+access_price_inquiry_manager,استعلام قیمت - مدیر,model_price_inquiry,base.group_system,1,1,1,1
+access_price_inquiry_public,استعلام قیمت - عمومی,model_price_inquiry,base.group_public,1,0,0,0
+access_price_inquiry_line_user,خطوط استعلام - کاربر,model_price_inquiry_line,base.group_user,1,1,1,1
+access_price_inquiry_line_manager,خطوط استعلام - مدیر,model_price_inquiry_line,base.group_system,1,1,1,1
+access_price_inquiry_line_public,خطوط استعلام - عمومی,model_price_inquiry_line,base.group_public,1,0,0,0
+access_price_inquiry_cart_user,سبد خرید - کاربر,model_price_inquiry_cart,base.group_user,1,1,1,1
+access_price_inquiry_cart_manager,سبد خرید - مدیر,model_price_inquiry_cart,base.group_system,1,1,1,1
+access_price_inquiry_cart_line_user,اقلام سبد - کاربر,model_price_inquiry_cart_line,base.group_user,1,1,1,1
+access_price_inquiry_cart_line_manager,اقلام سبد - مدیر,model_price_inquiry_cart_line,base.group_system,1,1,1,1
