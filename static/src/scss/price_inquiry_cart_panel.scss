@@ -1,0 +1,132 @@
+.o_tip_panel {
+
+    // ===== ردیف‌های اقلام سبد خرید (داخل مودال جزئیات) =====
+    .o_tip_cartline_list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .o_tip_cartline_row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #eef0f2;
+        border-radius: 10px;
+        padding: 8px;
+    }
+
+    .o_tip_cartline_image {
+        width: 46px;
+        height: 46px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f9fafb;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        img { width: 100%; height: 100%; object-fit: cover; }
+        .fa { font-size: 16px; color: #d1d5db; }
+    }
+
+    .o_tip_cartline_info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .o_tip_cartline_name {
+        font-size: 12px;
+        font-weight: 700;
+        color: #111827;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .o_tip_source_chip_inline {
+        display: inline-block;
+        width: fit-content;
+        font-size: 9px;
+        font-weight: 700;
+        color: #fff;
+        padding: 1px 8px;
+        border-radius: 999px;
+    }
+
+    .o_tip_cartline_qty {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+
+        button {
+            width: 22px;
+            height: 22px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1;
+            color: #4b5563;
+
+            &:hover { border-color: #6366f1; color: #6366f1; }
+        }
+
+        span {
+            min-width: 18px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+    }
+
+    .o_tip_cartline_subtotal {
+        flex-shrink: 0;
+        font-size: 12px;
+        font-weight: 800;
+        color: #16a34a;
+        direction: ltr;
+        min-width: 90px;
+        text-align: left;
+
+        small { font-size: 9px; color: #6b7280; font-weight: 600; }
+    }
+
+    .o_tip_cartline_remove {
+        flex-shrink: 0;
+        border: none;
+        background: #fef2f2;
+        color: #dc2626;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        cursor: pointer;
+
+        &:hover { background: #fee2e2; }
+    }
+
+    .o_tip_cart_total_bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px dashed #e5e7eb;
+
+        span { font-size: 12px; color: #6b7280; }
+
+        strong {
+            font-size: 16px;
+            color: #111827;
+            flex: 1;
+        }
+    }
+}
